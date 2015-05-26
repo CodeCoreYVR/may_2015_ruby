@@ -9,7 +9,7 @@ if(a > 10)
 elsif(a > 5)
   puts "The number is medium"
 # the code inside the else will be executed if non of the code inside
-# the if and elsif's is executed
+# the if and elsif's is executed 
 else
   puts "The number is small"
 end
