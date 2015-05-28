@@ -22,3 +22,13 @@
 #   + if super_time reaches 0, Pacman's state should be set to "regular"
 #   + if Pacman has zero lives, and eats a ghost in "regular" state,
 #     puts 'Game Over'
+class Pacman
+  def initialize
+  end
+
+  def eat_ball
+  end
+
+  def eat_ghost
+  end
+end
