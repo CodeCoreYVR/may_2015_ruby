@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Contact us</title>
+    <meta charset="utf-8">
+    <meta name="keywords" content="html, tutorial, learning">
+    <meta name="description" content="This is a page about HTML and CSS">
+  </head>
+  <body>
+    <p>Contact Us</p>
+
+    <form>
+      <!-- the for attribute will put the focus on the field with the id 'name' -->
+      <label for="name">Your Name</label>
+      <!-- the autofocus feature will make it so when the page loads -->
+      <!-- the focus will be automatically on this field -->
+      <input id="name" type="text" placeholder="name: e.g. John Smith" autofocus="true">
+      <br>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="email: e.g. john@smith.com">
+      <br>
+      <label for="password">Password</label>
+      <!-- The password field will show stars by default -->
+      <input id="password" type="password">
+      <br>
+      <!-- add the attribute checked if you want the checkbox check by default -->
+      <input type="checkbox" id="urgent">
+      <label for="urgent">Urgent?</label>
+      <br>
+      <input type="radio" id="marketing" name="department">
+      <label for="marketing">Marketing</label>
+
+      <input type="radio" id="sales" name="department" checked="checked">
+      <label for="sales">Sales</label>
+
+      <input type="radio" id="technical" name="department">
+      <label for="technical">Tehnical</label>
+
+      <br>
+      <label for="priority">Priority</label>
+      <select id="priority">
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <br>
+      <label for="message">Message</label>
+      <textarea id="message"></textarea>
+      <br>
+      <input type="submit" value="Submit Form">
+
+    </form>
+
+  </body>
+</html>

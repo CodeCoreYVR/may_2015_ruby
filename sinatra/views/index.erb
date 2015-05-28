@@ -1,0 +1,19 @@
+<h1>My First Sinatra Application</h1>
+
+<!-- This is comment -->
+<%# this will define a variable called "name" that we can use later
+    on this page but it won't display anything on the browser %>
+<% name = "Tam" %>
+
+<%# when using the <%= .. syntax, it will actually display on the page
+    You can put any Ruby code with in ERB blockss %>
+<%= name.upcase.reverse %>
+
+<% if name.length > 10 %>
+  <p>The name is long</p>
+<% else %>
+  <p>The name is short</p>
+<% end %>
+
+<%# this variable @city is defined in the app.rb file get "/" action %>
+<%= @city %>
