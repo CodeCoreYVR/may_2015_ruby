@@ -1,5 +1,5 @@
 # Write a class "Pacman" that:
-# - instatiates with no arguments and:
+# - instantiates with no arguments and:
 #   + 2 lives
 #   + Zero points
 #   + "regular" state
