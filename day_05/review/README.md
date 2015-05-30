@@ -166,3 +166,90 @@ Now that we have session handling sorted, let's remove the `session.inspect` lin
   </body>
 </html>
 ```
+## Add a Song Class
+Let's add a way to instantiate songs that we can later add to a session variable `session[:songs]`, which will be a list of songs (_array_ of songs).  
+  
+There are many ways we _could_ approach this problem, but let's create a song class.
+```ruby
+# song.rb
+class Song
+  attr_accessor :artist, :album, :song_name, :youtube_link
+  def initialize(artist, album, song_name, youtube_link)
+    @artist = artist
+    @album = album
+    @song_name = song_name
+    @youtube_link = youtube_link
+  end
+end
+```
+And let's add a view with a form for entering a user's favorite songs.
+```erb
+<% # views/fav_song_form.erb %>
+<h2>Enter One of Your Favorite Songs</h2>
+<p>All fields are mandatory!</p>
+<form action="/add-song-to-session-songs" method="post">
+  artist: <input name="artist"><br>
+  album: <input name="album"><br>
+  song name: <input name="song-name"><br>
+  youtube link: <input name="youtube"><br>
+  <input type="submit">
+</form>
+```
+Let's also add a link on the default layout for adding a favorite song.
+```erb
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <a href="/start-session">start session</a> |
+    <a href="/stop-session">stop session</a> |
+    <a href="/add-song-to-session-songs">add favorite song</a>
+    <% if session[:name] %>
+      | you are logged in as #{session[:name]}
+    <% end %>
+    <h1>Fav Songs</h1>
+    <%= yield %>
+  </body>
+</html>
+```
+Now that we have a form to add songs, and a link to call an action that will render the form, let's actually create the action, and an action to handle the form's post request. _Note_: Make sure to require the song class file as well.
+```ruby
+# fav_songs.rb
+require 'sinatra'
+require './song.rb'
+enable :sessions
+
+get '/' do
+  erb :fav_songs, layout: :default
+end
+
+get '/start-session' do
+  erb :session_form, layout: :default
+end
+
+post '/start-session' do
+  session[:name] = params[:name]
+  redirect '/'
+end
+
+get '/stop-session' do
+  session.clear
+  # session[:name] = nil # keep other session vars active
+  redirect '/'
+end
+
+get '/add-song-to-session-songs' do
+  erb :fav_song_form, layout: :default
+end
+
+post '/add-song-to-session-songs' do
+  song = Song.new
+  song.artist = params[:artist]
+  song.album = params[:album]
+  song.song_name = params[:song-name]
+  song.youtube = params[:youtube]
+  session[:songs].push(song)
+  redirect '/'
+end
+```
