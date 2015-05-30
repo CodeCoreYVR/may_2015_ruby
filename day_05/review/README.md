@@ -123,3 +123,28 @@ Now, let's create a form to start new sessions. This form should have an input f
   </body>
 </html>
 ```
+Let's add a method called `stop_session` that clears a session and redirects back to the root of your app.
+```ruby
+# fav_songs.rb
+require 'sinatra'
+enable :sessions
+
+get '/' do
+  erb :fav_songs, layout: :default
+end
+
+get '/start-session' do
+  erb :session_form, layout: :default
+end
+
+post '/start-session' do
+  session[:name] = params[:name]
+  redirect '/'
+end
+
+get '/stop-session' do
+  session.clear
+  # session[:name] = nil # keep other session vars active
+  redirect '/'
+end
+```
