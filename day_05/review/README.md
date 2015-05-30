@@ -59,3 +59,66 @@ get '/' do
   erb :fav_songs, layout: :default
 end
 ```
+## Sessions
+Let's create a way for visitors to our site to start and stop
+sessions. The session should store a visitor's name for the
+duration of the session.  
+  
+To do this, let's create a couple of links on a default layout called _start session_ and _stop session_.
+```erb
+<% # views/default.erb %>
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <a href="/start-session">start session</a> |
+    <a href="/stop-session">stop session</a>
+    <h1>Fav Songs</h1>
+    <%= yield %>
+  </body>
+</html>
+```
+Let's create a couple of methods in our `fav_songs.rb` to handle get request to `start-session` and `stop-session`.
+```ruby
+# fav_songs.rb
+require 'sinatra'
+
+get '/' do
+  erb :fav_songs, layout: :default
+end
+
+get '/start-session' do
+  erb :session_form, layout: :default
+end
+
+post '/start-session' do
+  session[:name] = params[:name]
+  redirect '/'
+end
+```
+
+Now, let's create a form to start new sessions. This form should have an input for a user's name, and another input to submit.
+```erb
+<% # views/session_form.erb %>
+<form action="/start-session" method="post">
+  name: <input name="name"><br>
+  <input type="submit">
+</form>
+```
+*Note*: Let's add something to output our session to the default layout. This way, we can see what is being set anywhere throughout our app.
+```
+<% # views/default.erb %>
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <a href="/start-session">start session</a> |
+    <a href="/stop-session">stop session</a>
+    <h1>Fav Songs</h1>
+    <p>Your session is: <%= session.inspect %></p>
+    <%= yield %>
+  </body>
+</html>
+```
