@@ -83,6 +83,7 @@ Let's create a couple of methods in our `fav_songs.rb` to handle get request to 
 ```ruby
 # fav_songs.rb
 require 'sinatra'
+enable :sessions
 
 get '/' do
   erb :fav_songs, layout: :default
@@ -94,7 +95,7 @@ end
 
 post '/start-session' do
   session[:name] = params[:name]
-  erb :fav_songs, layout: :default
+  redirect '/'
 end
 ```
 
@@ -107,7 +108,7 @@ Now, let's create a form to start new sessions. This form should have an input f
 </form>
 ```
 *Note*: Let's add something to output our session to the default layout. This way, we can see what is being set anywhere throughout our app.
-```
+```erb
 <% # views/default.erb %>
 <!DOCTYPE html>
 <html>
