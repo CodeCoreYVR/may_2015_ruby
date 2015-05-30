@@ -94,7 +94,7 @@ end
 
 post '/start-session' do
   session[:name] = params[:name]
-  redirect '/'
+  erb :fav_songs, layout: :default
 end
 ```
 

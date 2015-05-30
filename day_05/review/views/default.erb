@@ -3,7 +3,10 @@
   <head>
   </head>
   <body>
+    <a href="/start-session">start session</a> |
+    <a href="/stop-session">stop session</a>
     <h1>Fav Songs</h1>
+    <p>Your session is: <%= session.inspect %></p>
     <%= yield %>
   </body>
 </html>
