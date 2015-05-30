@@ -148,3 +148,21 @@ get '/stop-session' do
   redirect '/'
 end
 ```
+Now that we have session handling sorted, let's remove the `session.inspect` line from our default application, and instead have a `logged in as: #{session[:name]` somewhere, if the session has a name value.
+```erb
+<% # views/default.erb %>
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <a href="/start-session">start session</a> |
+    <a href="/stop-session">stop session</a>
+    <% if session[:name] %>
+      | logged in as <%= session[:name] %>
+    <% end %>
+    <h1>Fav Songs</h1>
+    <%= yield %>
+  </body>
+</html>
+```
