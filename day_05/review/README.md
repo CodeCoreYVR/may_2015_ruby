@@ -203,9 +203,9 @@ Let's also add a link on the default layout for adding a favorite song.
   </head>
   <body>
     <a href="/start-session">start session</a> |
-    <a href="/stop-session">stop session</a> |
-    <a href="/add-song-to-session-songs">add favorite song</a>
+    <a href="/stop-session">stop session</a>
     <% if session[:name] %>
+      | <a href="/add-song-to-session-songs">add favorite song</a>
       | you are logged in as #{session[:name]}
     <% end %>
     <h1>Fav Songs</h1>
@@ -230,6 +230,7 @@ end
 
 post '/start-session' do
   session[:name] = params[:name]
+  session[:songs] = []
   redirect '/'
 end
 
@@ -244,11 +245,12 @@ get '/add-song-to-session-songs' do
 end
 
 post '/add-song-to-session-songs' do
-  song = Song.new
-  song.artist = params[:artist]
-  song.album = params[:album]
-  song.song_name = params[:song-name]
-  song.youtube = params[:youtube]
+  song = {
+    artist: params[:artist],
+    album: params[:album],
+    song_name: params[:song-name],
+    youtube: params[:youtube]
+  }
   session[:songs].push(song)
   redirect '/'
 end
