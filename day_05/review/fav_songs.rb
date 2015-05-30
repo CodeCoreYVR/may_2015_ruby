@@ -14,3 +14,8 @@ post '/start-session' do
   # erb :fav_songs, layout: :default
   redirect '/'
 end
+
+get '/stop-session' do
+  session.clear
+  redirect '/'
+end
