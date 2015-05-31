@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+      body {background-color: #eee; color: #777;}
+      h1 {text-align: center; color: #88f;}
+      a {color: #b22; text-decoration: none;}
+      table {margin: auto;}
+      td {border: 2px #777 dotted;border-left: none;border-right: none;padding: 0 2em 0 2em;}
+    </style>
   </head>
   <body>
     <% if session[:name] %>
-      <a href="/stop-session">stop session</a>
+      <a href="/stop-session">logout</a>
       | <a href="/add-song-to-session-songs">add favorite song</a>
-      | logged in as <%= session[:name] %>
     <% else %>
-      <a href="/start-session">start session</a>
+      <a href="/start-session">login</a>
     <% end %>
-    <h1>Fav Songs</h1>
+    <h1>
+      <% if session[:name] %>
+        <%= session[:name] %>'s 
+      <% end %>
+      Fav Songs</h1>
     <%= yield %>
   </body>
 </html>

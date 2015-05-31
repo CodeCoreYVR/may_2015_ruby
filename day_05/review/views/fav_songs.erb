@@ -9,10 +9,10 @@
       </tr>
       <% session[:songs].each do |song| %>
         <tr>
-          <th><%= song[:artist] %></th>
-          <th><%= song[:album] %></th>
-          <th><%= song[:song_name] %></th>
-          <th><a href="<%= song[:youtube] %>">video</a></th>
+          <td><%= song[:artist] %></td>
+          <td><%= song[:album] %></td>
+          <td><%= song[:song_name] %></td>
+          <td><a href="<%= song[:youtube] %>">watch</a></td>
         </tr>
       <% end %>
     </table>
