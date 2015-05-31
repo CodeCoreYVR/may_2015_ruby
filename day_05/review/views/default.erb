@@ -3,14 +3,14 @@
   <head>
   </head>
   <body>
-    <a href="/start-session">start session</a> |
-    <a href="/stop-session">stop session</a>
     <% if session[:name] %>
+      <a href="/stop-session">stop session</a>
       | <a href="/add-song-to-session-songs">add favorite song</a>
       | logged in as <%= session[:name] %>
+    <% else %>
+      <a href="/start-session">start session</a>
     <% end %>
     <h1>Fav Songs</h1>
-    <p>Session: <%= session.inspect %>
     <%= yield %>
   </body>
 </html>

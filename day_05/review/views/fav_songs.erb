@@ -1,1 +1,20 @@
-Hello World
+<% if session[:songs] %>
+  <% unless session[:songs].length == 0 %>
+    <table>
+      <tr>
+        <th>artist</th>
+        <th>album</th>
+        <th>song name</th>
+        <th>youtube</th>
+      </tr>
+      <% session[:songs].each do |song| %>
+        <tr>
+          <th><%= song[:artist] %></th>
+          <th><%= song[:album] %></th>
+          <th><%= song[:song_name] %></th>
+          <th><a href="<%= song[:youtube] %>">video</a></th>
+        </tr>
+      <% end %>
+    </table>
+  <% end %>
+<% end %>
