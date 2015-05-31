@@ -10,5 +10,4 @@
   * Day 04
     - [ERB and Sinatra](https://github.com/CodeCoreYVR/may_2015_ruby/tree/master/day_04)
   * Day 05
-    -[Sinatra &
-Sessions](https://github.com/CodeCoreYVR/may_2015_ruby/tree/master/day_05)
+    - [Sinatra & Sessions](https://github.com/CodeCoreYVR/may_2015_ruby/tree/master/day_05)
