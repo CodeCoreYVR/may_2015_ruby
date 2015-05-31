@@ -255,3 +255,45 @@ post '/add-song-to-session-songs' do
   redirect '/'
 end
 ```
+## Add Song Table View
+So, we removed the song class, as we decided it was unnecessary. Since we are just adding a hash to the `session[:songs]` array that is instantiated on session start, we don't need a class (we build the hash from the params}.  
+  
+OK, let's add a table of songs that displays on the `fav_songs` view, if there _are any_ songs in `session[:songs]`.
+```erb
+<% # views/default.erb %>
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <a href="/start-session">start session</a> |
+    <a href="/stop-session">stop session</a>
+    <% if session[:name] %>
+      | <a href="/add-song-to-session-songs">add favorite song</a>
+      | you are logged in as #{session[:name]}
+    <% end %>
+    <% if session[:songs] %>
+      <% unless session[:songs].lenght == 0 %>
+        <table>
+         <tr>
+           <th>artist</th>
+           <th>album</th>
+           <th>song name</th>
+           <th>youtube</th>
+         </tr>
+        <% session[:songs].each do |song| %>
+         <tr>
+           <th><%= song[:artist] %></th>
+           <th><%= song[:album] %></th>
+           <th><%= song[:song_name] %></th>
+           <th><%= song[:youtube] %></th>
+         </tr>
+        <% end %>
+        </table>
+      <% end %>
+    <% end %>
+    <h1>Fav Songs</h1>
+    <%= yield %>
+  </body>
+</html>
+```

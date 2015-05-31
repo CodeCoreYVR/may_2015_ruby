@@ -1,5 +1,4 @@
 require 'sinatra'
-require './song.rb'
 
 enable :sessions
 
