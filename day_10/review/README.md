@@ -89,3 +89,57 @@ Rails.applications.routes.draw do
   root "songs#index"
 end
 ```
+## Add New Songs
+Let's add a way for visitors to our site to add new songs. To do this we will need an action in the controller that displays a form. We will also need an action in the controller to handle the form submission, and save the valid song data into the database. We can then choose to redirect to the index view, or somewhere else, if we want.  
+  
+Let's start by adding the `new` action to our songs controller
+```ruby
+# app/controllers/songs_controller.rb
+
+class SongsController < ApplicationController
+  def index
+    @songs = Song.all
+  end
+
+  def new
+    @song = Song.new
+  end
+end
+```
+Now that we have a song instance variable instantiated, and a new action expecting to pass this song instance variable to a new view, let's go ahead and create a new view (we may as well add some routes while we are at it).  
+```erb
+<% # app/views/songs/new.html.erb %>
+
+<h1>Add a New Favorite Song</h1>
+
+<%= form_for @song do |f| %>
+  <%= f.label :title %>: 
+  <%= f.text_field :title %><br>
+  <%= f.label :artist %>: 
+  <%= f.text_field :artist %><br>
+  <%= f.label :album %>: 
+  <%= f.text_field :album %><br>
+  <%= f.label :youtube_link, "watch" %>
+  <%= f.text_field :youtube_link %><br>
+  <%= f.submit %>
+<% end %>
+```
+Let's add a route for our new song. You'll totally notice, if you actually test it out that only adding a route for getting the new song on your form will break your app. If you haven't yet, test it out! You should be able to figure out why (though, we probably can't yet - don't worry, I didn't know why at first either).
+```
+Rails.application.routes.draw do
+  root "songs#index"
+  get "/songs/new" => "songs#new"
+end
+```
+You should see a NoMethodError in Songs#new, something like
+```
+undefined method `songs_path' for #<#<Class:0x007ff77c0dd380>:0x007ff7813638c0>
+```
+This is because rails is expecting the route to be formed in a certain way. It is looking for a `songs_path`. We can appease rails in a numberof ways. Here are two:
+```ruby
+# create whichever route you want, but specify an `as: :something` key-value pair
+get "/songs/lol" => "songs#new", as: :songs
+
+# use the path expected by rails, and you can omit specifying the key-value pair.
+get "/songs" => "songs#new"
+```
