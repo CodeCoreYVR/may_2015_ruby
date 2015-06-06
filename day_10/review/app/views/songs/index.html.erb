@@ -6,6 +6,7 @@
     <th>album</th>
     <th>artist</th>
     <th>watch</th>
+    <th>edit</th>
   </tr>
   <% @songs.each do |song| %>
     <tr>
@@ -13,6 +14,7 @@
       <td><%= song.album %></td>
       <td><%= song.artist %></td>
       <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "edit", song_path(song.id) %></td>
     </tr>
   <% end %>
 </table>

@@ -3,4 +3,6 @@ Rails.application.routes.draw do
 
   get "/songs" => "songs#new"
   post "/songs" => "songs#create"
+
+  get "/songs/:id" => "songs#edit", as: :song
 end

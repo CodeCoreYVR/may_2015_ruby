@@ -212,3 +212,82 @@ class SongsController < ApplicationController
 
 end
 ```
+## Edit Songs
+Let's add a link beside each song displayed in the index view that allows us to edit it. The link should call an edit action in the songs controller which renders a form that allows us to edit the song. When we submit the form, it should call an update action. **Note**: this is very smilar to `new` and `create`.
+```ruby
+# app/controllers/songs_controller.rb
+
+class SongsController < ApplicationController
+
+  # ...
+
+  def edit
+    @song = Song.find(params[:id])
+  end
+end
+```
+Let's add a route that brings up the edit form with the song, based on a param for the song's id.
+```ruby
+Rails.application.routes.draw do
+  root "songs#index"
+
+  get "/songs" => "songs#new"
+  post "/songs" => "songs#create"
+
+  get "/songs/:id" => "songs#edit", as: :song
+end
+```
+Since our edit form will have all the same input fields as the new form, we can create a form partial using the form we have, and simply render it on both the new and edit views.
+```erb
+<% # app/views/songs/_form.html.erb %>
+
+<%= form_for @song do |f| %>
+  <%= f.label_for :title %>
+  <%= f.text_field :title %><br>
+  <%= f.label_for :artist %>
+  <%= f.text_field :artist %><br>
+  <%= f.label_for :album %>
+  <%= f.text_field :album %><br>
+  <%= f.label_for :youtube_link, "watch" %>
+  <%= f.text_field :youtube_link %><br>
+  <%= f.submit %>
+<% end %>
+```
+With a form partial, we can now just call `render :form` in our new and edit views, and not have to repeat the code.
+```erb
+<% # app/views/songs/new.html.erb %>
+
+<h1>Add a New Favorite Song</h1>
+
+<%= render "form" %>
+```
+```erb
+<% # app/views/songs/edit.html.erb %>
+
+<%= render "form" %>
+```
+Let's also add a link to edit each song on the index view
+```erb
+<% # app/views/songs/index.html.erb %>
+
+<h1>Just Five Songs</h1>
+
+<table>
+  <tr>
+    <th>title</th>
+    <th>album</th>
+    <th>artist</th>
+    <th>watch</th>
+    <th>edit</th>
+  </tr>
+  <% @songs.each do |song| %>
+  <tr>
+    <td><%= song.title %></td>
+    <td><%= song.album %></td>
+    <td><%= song.artist %></td>
+    <td><%= link_to "watch", song.youtube_link %></td>
+    <td><% link_to "edit", song_path(song.id) %></td>
+    <td><%= link_to "edit", song %></td>
+  <% end %>
+</table>
+```
