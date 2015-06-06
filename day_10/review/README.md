@@ -291,3 +291,39 @@ Let's also add a link to edit each song on the index view
   <% end %>
 </table>
 ```
+## [Update Song](https://github.com/CodeCoreYVR/may_2015_ruby/commit/b4d3ab0f2435712336c245901fa7703438e3ad40)
+Now that we have an action to edit questions that renders the form, when we submit the form, it will call the update action in the songs controller. Just like we saved the song in the initial create action, we are going to save it in the update action, however rather than call `save`, we'll call `update`.
+```ruby
+# app/controllers/songs_controller.rb
+
+class SongsController < ApplicationController
+
+  # ...
+
+  def update
+    @song = Song.find(params[:id])
+
+    if @song.update(params.require(:song).
+                    permit([:title, :artist, :album, :youtube_link]))
+      flash[:notice] = "Song updated successfully"
+      redirect_to root_path
+    else
+      flash[:alert] = "Unable to update song. Please try again."
+      render :edit
+    end
+  end
+end
+```
+We'll also need to add a route to pass a patch request that updates the song in the database.
+```ruby
+Rails.application.routes.draw do
+  root 'songs#index'
+
+  get '/songs' => 'songs#new'
+  post '/songs' => 'songs#create'
+
+  get '/songs/:id' => 'songs#edit', as: :song
+  patch '/songs/:id' => 'songs#update'
+end
+```
+

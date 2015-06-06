@@ -22,4 +22,17 @@ class SongsController < ApplicationController
   def edit
     @song = Song.find(params[:id])
   end
+
+  def update
+    @song = Song.find(params[:id])
+
+    if @song.update(params.require(:song).
+        permit([:title, :artist, :album, :youtube_link]))
+      flash[:notice] = "Song updated successfully."
+      redirect_to root_path
+    else
+      flash[:alert] = "Unable to update song. Please try again."
+      render :edit
+    end
+  end
 end

@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   post "/songs" => "songs#create"
 
   get "/songs/:id" => "songs#edit", as: :song
+  patch "/songs/:id" => "songs#update"
 end
