@@ -188,3 +188,27 @@ Let's open up our application layout and add a couple links. We probably want a 
 
 <% # ... %>
 ```
+## Scoping with Scopes
+Let's create a [rails scope](http://guides.rubyonrails.org/active_record_querying.html#scopes) to select the most recent five songs from the database. We can call it something like `recent_five` and we can use that, instead of `all` when we instantiate the collection of songs that we pass to our index view.  
+  
+Open up your Song model and add a scope called `recent_five`
+```ruby
+# app/models/song.rb
+
+class Song < ActiveRecord::Base
+  scope :recent_five, -> { order("updated_at DESC").limit(5) }
+end
+```
+Now that we have a scope, let's use it to instantiate the songs collection in our index action.
+```ruby
+# app/controllers/songs_controller.rb
+
+class SongsController < ApplicationController
+  def index
+    @songs = Song.recent_five
+  end
+
+  # ...
+
+end
+```
