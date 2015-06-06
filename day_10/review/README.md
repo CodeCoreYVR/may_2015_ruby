@@ -44,3 +44,48 @@ We can also create songs in one step, like this:
 ```
 Song.create(title: "Heavy Metal", artist: "White Rabbits", album: "Milk Famous", youtube_link: "https://www.youtube.com/watch?v=M8Rk2lDZJhU")
 ```
+## Generate a Songs Controller and Index View
+Now, we'll generate a controller for our songs. This is going to have an index action which will instantiate a variable which is a collection of all the songs in the database. We will pass this variable to our index view to display the songs that we want.
+```
+rails generate controller songs
+```
+Let's open up the `songs_controller.rb` and add an index action
+```ruby
+# app/controllers/songs_controller.rb
+
+class SongsController < ApplicationController
+  def index
+    @songs = Song.all
+  end
+end
+```
+Now that we have an instance variable which is a collection of all the songs being passed to a view, we can create the view to view.
+```erb
+<% # app/views/songs/index.html.erb %>
+
+<h1>Just Five Songs</h1>
+
+<table>
+  <tr>
+    <th>title</th>
+    <th>album</th>
+    <th>artist</th>
+    <th>watch</th>
+  </tr>
+  <% @songs.each do |song| %>
+  <tr>
+    <td><%= song.title %></td>
+    <td><%= song.album %></td>
+    <td><%= song.artist %></td>
+    <td><%= link_to "watch", song.youtube_link %></td>
+  </tr>
+  <% end %>
+</table>
+```
+Let's add a route to `config/routes.rb` to display the songs index view as the root route for our app
+```ruby
+# config/routes.rb
+Rails.applications.routes.draw do
+  root "songs#index"
+end
+```
