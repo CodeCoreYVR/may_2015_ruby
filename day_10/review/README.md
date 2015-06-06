@@ -5,7 +5,7 @@ rails new <app-name> -T -d postgresql
 ```
 **note**: `<app-name>` is a required name. You can choose what to put, eg: `five_songs`
 
-## Generate a Song Model
+## [Generate a Song Model](https://github.com/CodeCoreYVR/may_2015_ruby/commit/ea19efe8a25d0d1f630a2cdf9df8de3738403c02)
 Let's start by generating a song model with the following attributes: title, artist, album, and youtube link. You may notice that all of these attributes are strings. By default, rails uses the string datatype for model attributes, so we do not need to explicitly state the datatype in our model generation. However, we will.  
 ```
 rails generate model song title:string artist:string album:string youtube_link:string
@@ -44,7 +44,7 @@ We can also create songs in one step, like this:
 ```
 Song.create(title: "Heavy Metal", artist: "White Rabbits", album: "Milk Famous", youtube_link: "https://www.youtube.com/watch?v=M8Rk2lDZJhU")
 ```
-## Generate a Songs Controller and Index View
+## [Generate a Songs Controller and Index View](https://github.com/CodeCoreYVR/may_2015_ruby/commit/f6e6d82a86c3e3fdc6c5c1733cde1143c407c14a)
 Now, we'll generate a controller for our songs. This is going to have an index action which will instantiate a variable which is a collection of all the songs in the database. We will pass this variable to our index view to display the songs that we want.
 ```
 rails generate controller songs
@@ -89,7 +89,7 @@ Rails.applications.routes.draw do
   root "songs#index"
 end
 ```
-## Add New Songs
+## [Add New Songs](https://github.com/CodeCoreYVR/may_2015_ruby/commit/5678fc36fbe43c4eb26ace3fe4050982e2b0dbf3)
 Let's add a way for visitors to our site to add new songs. To do this we will need an action in the controller that displays a form. We will also need an action in the controller to handle the form submission, and save the valid song data into the database. We can then choose to redirect to the index view, or somewhere else, if we want.  
   
 Let's start by adding the `new` action to our songs controller
@@ -143,7 +143,7 @@ get "/songs/lol" => "songs#new", as: :songs
 # use the path expected by rails, and you can omit specifying the key-value pair.
 get "/songs" => "songs#new"
 ```
-## Add a Create Song Method (and POST route)
+## [Add a Create Song Method (and POST route)](https://github.com/CodeCoreYVR/may_2015_ruby/commit/03bcd127eef858f917f4e80ec8c71429bb41c1bd)
 Now, when we hit "create song", we can see we're getting an error. This is because no route matches post for our form. We need to add this to our routes file.
 ```ruby
 Rails.application.routes.draw do
@@ -177,7 +177,7 @@ class SongsController < ApplicationController
   end
 end
 ```
-## Add Navigation
+## [Add Navigation](https://github.com/CodeCoreYVR/may_2015_ruby/commit/d0b8b369e7b51d90b8170537707bc82caceec8e)
 Let's open up our application layout and add a couple links. We probably want a link to our home page and a link to the add new song page to be available on every page of our site, so let's do that.
 ```erb
 <% # app/views/layouts/application.html.erb %>
@@ -188,7 +188,7 @@ Let's open up our application layout and add a couple links. We probably want a 
 
 <% # ... %>
 ```
-## Scoping with Scopes
+## [Scoping with Scopes](https://github.com/CodeCoreYVR/may_2015_ruby/commit/241d58bfa3674e214f639e7cb645fd7b74af8121)
 Let's create a [rails scope](http://guides.rubyonrails.org/active_record_querying.html#scopes) to select the most recent five songs from the database. We can call it something like `recent_five` and we can use that, instead of `all` when we instantiate the collection of songs that we pass to our index view.  
   
 Open up your Song model and add a scope called `recent_five`
@@ -212,7 +212,7 @@ class SongsController < ApplicationController
 
 end
 ```
-## Edit Songs
+## [Edit Songs](https://github.com/CodeCoreYVR/may_2015_ruby/commit/602ed391f752e3c0a44945e8b5940af25e88acb1)
 Let's add a link beside each song displayed in the index view that allows us to edit it. The link should call an edit action in the songs controller which renders a form that allows us to edit the song. When we submit the form, it should call an update action. **Note**: this is very smilar to `new` and `create`.
 ```ruby
 # app/controllers/songs_controller.rb
