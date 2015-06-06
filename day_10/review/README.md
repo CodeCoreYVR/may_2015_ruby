@@ -143,3 +143,37 @@ get "/songs/lol" => "songs#new", as: :songs
 # use the path expected by rails, and you can omit specifying the key-value pair.
 get "/songs" => "songs#new"
 ```
+## Add a Create Song Method (and POST route)
+Now, when we hit "create song", we can see we're getting an error. This is because no route matches post for our form. We need to add this to our routes file.
+```ruby
+Rails.application.routes.draw do
+  root "songs#index"
+
+  get "/songs" => "songs#new"
+  post "/songs" => "songs#create"
+end
+```
+Let's add a controller action for create!
+```ruby
+class SongsController < ApplicationController
+  def index
+    @songs = Song.all
+  end
+
+  def new
+    @song = Song.new
+  end
+
+  def create
+    @song = Song.new(params.require(:song).
+                     permit([:title, :artist, :album, :youtube_link]))
+    if @song.save
+      flash[:notice] = "Song saved successfully"
+      redirect_to root_path
+    else
+      flash[:alert] = "Something went wrong. Please refresh and try again."
+      render :new
+    end
+  end
+end
+```
