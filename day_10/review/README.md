@@ -177,3 +177,14 @@ class SongsController < ApplicationController
   end
 end
 ```
+## Add Navigation
+Let's open up our application layout and add a couple links. We probably want a link to our home page and a link to the add new song page to be available on every page of our site, so let's do that.
+```erb
+<% # app/views/layouts/application.html.erb %>
+<% # ... %>
+  <%= link_to "home", root_path %> |
+  <%= link_to "add song", songs_path %>
+  <%= yield %>
+
+<% # ... %>
+```
