@@ -91,7 +91,7 @@ end
 ```
 ## [Add New Songs](https://github.com/CodeCoreYVR/may_2015_ruby/commit/5678fc36fbe43c4eb26ace3fe4050982e2b0dbf3)
 Let's add a way for visitors to our site to add new songs. To do this we will need an action in the controller that displays a form. We will also need an action in the controller to handle the form submission, and save the valid song data into the database. We can then choose to redirect to the index view, or somewhere else, if we want.  
-  
+
 Let's start by adding the `new` action to our songs controller
 ```ruby
 # app/controllers/songs_controller.rb
@@ -113,11 +113,11 @@ Now that we have a song instance variable instantiated, and a new action expecti
 <h1>Add a New Favorite Song</h1>
 
 <%= form_for @song do |f| %>
-  <%= f.label :title %>: 
+  <%= f.label :title %>:
   <%= f.text_field :title %><br>
-  <%= f.label :artist %>: 
+  <%= f.label :artist %>:
   <%= f.text_field :artist %><br>
-  <%= f.label :album %>: 
+  <%= f.label :album %>:
   <%= f.text_field :album %><br>
   <%= f.label :youtube_link, "watch" %>
   <%= f.text_field :youtube_link %><br>
@@ -190,7 +190,7 @@ Let's open up our application layout and add a couple links. We probably want a 
 ```
 ## [Scoping with Scopes](https://github.com/CodeCoreYVR/may_2015_ruby/commit/241d58bfa3674e214f639e7cb645fd7b74af8121)
 Let's create a [rails scope](http://guides.rubyonrails.org/active_record_querying.html#scopes) to select the most recent five songs from the database. We can call it something like `recent_five` and we can use that, instead of `all` when we instantiate the collection of songs that we pass to our index view.  
-  
+
 Open up your Song model and add a scope called `recent_five`
 ```ruby
 # app/models/song.rb
@@ -242,13 +242,13 @@ Since our edit form will have all the same input fields as the new form, we can 
 <% # app/views/songs/_form.html.erb %>
 
 <%= form_for @song do |f| %>
-  <%= f.label_for :title %>
+  <%= f.label :title %>
   <%= f.text_field :title %><br>
-  <%= f.label_for :artist %>
+  <%= f.label :artist %>
   <%= f.text_field :artist %><br>
-  <%= f.label_for :album %>
+  <%= f.label :album %>
   <%= f.text_field :album %><br>
-  <%= f.label_for :youtube_link, "watch" %>
+  <%= f.label :youtube_link, "watch" %>
   <%= f.text_field :youtube_link %><br>
   <%= f.submit %>
 <% end %>
@@ -326,4 +326,3 @@ Rails.application.routes.draw do
   patch '/songs/:id' => 'songs#update'
 end
 ```
-
