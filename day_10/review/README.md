@@ -384,3 +384,38 @@ album = a.albums.new
 ```
 When we instantiate an album this way, it pre-populates the artist id
 attributes with the artist's id.
+
+## One to Many (Albums have Many Songs)
+We already have a song model, and it has an album attribute. This is currently a string. Today, we're going to drop this column, then add a new column. **Bonus**: Read the rails documentation to find a way to do this in one step.
+```shell
+rails generate migration drop_column_album_from_songs
+```
+Open up the migration file and remove the appropriate column.
+```ruby
+class DropColumnAlbumFromSongs < ActiveRecord::Migration
+  def change
+    remove_column :songs, :album
+  end
+end
+```
+Now, let's add album references to songs
+```shell
+rails generate migration add_album_references_to_songs album:refenences
+```
+We also want to add `has_many` and `belongs_to`, so let's open up the
+models and do that
+```ruby
+# app/models/album.rb
+class Album < ActiveRecord::Base
+  belongs_to :artist
+  has_many :songs
+end
+```
+```ruby
+class Song < ActiveRecord::Base
+  belongs_to :album
+end
+```
+Run a `bin/rake db:migrate` and let's open up the console to see if it worked!  
+  
+We will have a look at how to make new songs next time. Keep in mind that our app no longer works on the front end! See if you can _fix_ it.
