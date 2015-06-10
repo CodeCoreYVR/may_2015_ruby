@@ -326,4 +326,61 @@ Rails.application.routes.draw do
   patch '/songs/:id' => 'songs#update'
 end
 ```
+## One to Many (Artists have Many Albums)
+Let's create a couple of [one to many](http://guides.rubyonrails.org/association_basics.html) relations. When we look at our Song model, there are some obvious one to many relations that can be made. The ones that may make the most sense at first (or at least for today) are that artists may have many albums (albums belong to artists), and albums have many songs (songs belong to albums). Let's start with the former!  
+  
+To make a one to many relation between artists and albums, we are going to need artist and album models. So, let's create them.  
+  
+What attributes should our artist have? Let's keep things simple, and
+use artist to mean group, band, solo artist, or whatever we have.  
+```
+rails generate model artist name:string
+```
+Now, if artists are going to have many albums, we will also want to have a album model. What attributes should our album model have? Let's also keep things simple with albums and give them an artist reference, a name, and a release year.
+```
+rails generate model album name:string release_year:datetime artist:references
+```
+Now that we have a couple of models generated, let's open up the class files and add the appropriate associations.  
+  
+Add a `has_many` relation to the artist model
+```ruby
+# app/models/artist.rb
+class Artist < ActiveRecord::Base
+  has_many :albums
+end
+```
+And open up your album model, and you should see the `belongs_to` association is already there (this is because we added `artist:references` to the model generation).
+```ruby
+class Album < ActiveRecord::Base
+  belongs_to :artist
+end
+```
+Before running a migration, open up the album migration file, and have a look at the refences line. It add `index: true` which creates an `artist_id` field for all new albums.
+```ruby
+class CreateAlbums < ActiveRecord::Migration
+  def change
+    create_table :albums do |t|
+      t.string :name
+      t.datetime :release_year
+      t.references :artist, index: true, foreign_key: true
 
+      t.timestamps null: false
+    end
+  end
+end
+```
+Run `bin/rake db:migrate` and open up rails console to play around with your new models.  
+  
+Let's make a few new artists.
+```shell
+Artist.create(name: "White Rabbits")
+Artist.create(name: "Summer Heart")
+Artist.create(name: "Throw Me the Statue")
+```
+Now that we have some artists, let's make some albums for them. Note, that because of the relationships we have set up, rather than using `album.new` we will use `artist.albums.new` like this
+```shell
+a = Artist.first
+album = a.albums.new
+```
+When we instantiate an album this way, it pre-populates the artist id
+attributes with the artist's id.
