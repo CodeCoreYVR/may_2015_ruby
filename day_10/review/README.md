@@ -462,3 +462,22 @@ After generating these migrations, run `bin/rake db:migrate` and check them out 
 @song.save
 ```
 Try firing up your `bin/rails server` and you should see a nice big error on your home page!
+## Fix the Index View
+The song index view is broken, because we no longer have a column "artist", also our album field is showing an object, rather than a string or a link. Let's fix this up first by just getting our index to show the string names of albums and artists.
+```erb
+<% # app/views/songs/index.html.erb %>
+
+<% ... %>
+
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= song.album.name %></td>
+      <td><%= song.album.artist.name %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "edit", song_path(song.id) %></td>
+    </tr>
+  <% end %>
+
+<% ... %>
+```

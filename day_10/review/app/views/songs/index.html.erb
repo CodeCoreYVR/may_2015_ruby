@@ -11,8 +11,8 @@
   <% @songs.each do |song| %>
     <tr>
       <td><%= song.title %></td>
-      <td><%= song.album %></td>
-      <td><%= song.artist %></td>
+      <td><%= song.album.name %></td>
+      <td><%= song.album.artist.name %></td>
       <td><%= link_to "watch", song.youtube_link %></td>
       <td><%= link_to "edit", song_path(song.id) %></td>
     </tr>
