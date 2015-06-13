@@ -1,5 +1,11 @@
 <h1><%= @artist.name %></h1>
 
+<%= form_for [@artist, @album] do |f| %>
+  <%= f.label :name %>: <%= f.text_field :name %><br>
+  <%= f.label :release_year %>: <%= f.text_field :release_year %><br>
+  <%= f.submit %>
+<% end %>
+
 <table>
   <tr>
     <th>name</th>

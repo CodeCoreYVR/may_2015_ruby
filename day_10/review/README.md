@@ -580,3 +580,57 @@ Now, let's add a link to our songs index page back to the artist view.
     </tr>
   <% end %>
 ```
+## Album Routes, Views, and Controller
+let's create some route resources for albums
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  # ...
+
+  resources :albums, only: [:new, :create, :show]
+
+  #...
+end
+```
+Add the controller and actions. We're going to add the form to the artist show page, so we'll want to instantiate a new album in the show action in the artists controller.
+```ruby
+# app/controllers/artists_controller.rb
+
+  # ...
+  def show
+    @artist = Artist.find(params[:id])
+    @album = @artist.albums.new
+  end
+  #...
+```
+Add the form to the artists show view
+```erb
+<% # app/views/artists/show.html.erb %>
+
+<% # ... %>
+
+<%= form_for [@artist, @album] do |f| %>
+  <%= f.label :name %>: <%= f.text_field :name %><br>
+  <%= f.label :release_year %>: <%= f.text_field :release_year %><br>
+<% end %>
+<% # ... %>
+```
+Now add a albums controller with a create action.
+```ruby
+# app/controllers/albums_controller.rb
+class AlbumsController < ApplicationController
+  def create
+    @artist = Artist.find(params[:artist_id])
+    @album = @artist.albums.new(params.require(:album).permit([:name, :release_year]))
+
+    if @album.save
+      redirect_to @artist
+      flash[:notice] = "Album Saved!"
+    else
+      redirect_to @artist
+      flash[:alert] = "Album not Saved!"
+    end
+  end
+end
+```
