@@ -481,3 +481,102 @@ The song index view is broken, because we no longer have a column "artist", also
 
 <% ... %>
 ```
+## Artist Routes, Views, and Controller
+Let's start by making a route that will lead to a view with a form for creating a new artist.
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+
+# ...
+  resources :artists, only: [:new, :create]
+# ...
+end
+```
+Let's add a `add artist` link to our navigation bar
+```erb
+<!-- app/views/layouts/application.html.erb -->
+
+  <%= link_to "home", root_path %> |
+  <%= link_to "add song", songs_path %> |
+  <%= link_to "add artist", new_artist_path %>
+
+```
+Add a controller with a `new` action to handle the link. The `new` action should instantiate a new artist and pass it to the new view.
+```ruby
+# app/controllers/artists_controller.rb
+
+class ArtistsController < ApplicationController
+  def new
+    @artist = Artist.new
+  end
+end
+```
+We can now create a view with a form for adding new artists
+```erb
+<%# app/views/artists/new.html.erb %>
+
+<h1>New Artist</h1>
+
+<%= form_for @artist do |f| %>
+  <%= f.label :name %><br>
+  <%= f.text_field :name %><br>
+  <%= f.submit %>
+<% end %>
+
+```
+When we hit submit, Rails will be looking for a create action. Let's _create_ a create action!
+```ruby
+class ArtistsController < ApplicationController
+  def new
+    @artist = Artist.new
+  end
+
+  def create
+    @artist = Artist.new(params.require(:artist).permit([:name]))
+    if @artist.save
+      redirect_to artist_path(@artist.id)
+      flash[:notice] = "Artist saved!"
+    else
+      render :new
+      flash[:alert] = "Artist not saved!"
+    end
+  end
+end
+```
+Also, add show to the artist resources array in routes `resources :artists, only: [:new, :create, :show]`  
+  
+We will also want to add a view.
+```erb
+<% # app/views/artists/show.html.erb %>
+
+<h1><%= @artist.name %><h1>
+
+<table>
+  <tr>
+    <th>name</th>
+    <th>release year</th>
+    <th>view songs</th>
+  </tr>
+  <% @artist.albums.each do |album| %>
+    <tr>
+      <td><%= album.name %></p></td>
+      <td><%= album.release_year %></td>
+      <td>show album</td>
+    </tr>
+  <% end %>
+</table>
+```
+Now, let's add a link to our songs index page back to the artist view.
+```erb
+<% # app/views/songs/index.html.erb %>
+
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= song.album.name %></td>
+      <td><%= link_to song.album.artist.name, song.album.artist %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "edit", song_path(song.id) %></td>
+    </tr>
+  <% end %>
+```

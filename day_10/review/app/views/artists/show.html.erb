@@ -1,0 +1,16 @@
+<h1><%= @artist.name %></h1>
+
+<table>
+  <tr>
+    <th>name</th>
+    <th>release year</th>
+    <th>view songs</th>
+  </tr>
+  <% @artist.albums.each do |album| %>
+    <tr>
+      <td><%= album.name %></td>
+      <td><%= album.release_year %></td>
+      <td>show album</td>
+    </tr>
+  <% end %>
+</table>
