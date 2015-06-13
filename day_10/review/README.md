@@ -441,4 +441,24 @@ class RemoveColumnReleaseYearFromAlbum < ActiveRecord::Migration
   end
 end
 ```
-**Bonus**: See if you can find a _better_ way to accomplish the same thing.
+**Bonus**: See if you can find a _better_ way to accomplish the same thing.  
+  
+Now, let's make sure our songs have `album_id` and `artist_id` fields that reference albums and artists. Since we're going to do this, we no longer need the artist column, so let's remove it.
+```
+bin/rails generate migration remove_column_artist_from_songs artist:string
+```
+Let's generate another migration to add artist references
+```
+bin/rails generate migration add_artist_references_to_songs artist:references
+```
+After generating these migrations, run `bin/rake db:migrate` and check them out in `bin/rails console` and let's go through the steps of creating a new song.
+```
+@artist = Artist.last
+@album = @artist.albums.last
+@song = @album.songs.new
+@song.artist_id = @album.artist.id
+@song.youtube_link = "https://www.youtube.com/watch?v=TzjPP1jH6_k"
+@song.title = "Breathing"
+@song.save
+```
+Try firing up your `bin/rails server` and you should see a nice big error on your home page!
