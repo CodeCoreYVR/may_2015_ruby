@@ -419,3 +419,26 @@ end
 Run a `bin/rake db:migrate` and let's open up the console to see if it worked!  
   
 We will have a look at how to make new songs next time. Keep in mind that our app no longer works on the front end! See if you can _fix_ it.
+## Continuing from last time
+Let's change the album field `release_date` to a string. To do this, let's first generate a migration that removes the column.
+```
+rails generate migration remove_column_release_date_from_album release_date:datetime
+```
+This will generate a migration file that looks like this
+```ruby
+class RemoveColumnReleaseYearFromAlbum < ActiveRecord::Migration
+  def change
+    remove_column :albums, :release_year, :datetime
+  end
+end
+```
+We know that we want to add a column of type string, so what will happen if we add a line to the migration that just adds that column?
+```ruby
+class RemoveColumnReleaseYearFromAlbum < ActiveRecord::Migration
+  def change
+    remove_column :albums, :release_year, :datetime
+    add_column :albums, :release_year, :string
+  end
+end
+```
+**Bonus**: See if you can find a _better_ way to accomplish the same thing.
