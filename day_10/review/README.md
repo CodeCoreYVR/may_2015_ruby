@@ -326,7 +326,7 @@ Rails.application.routes.draw do
   patch '/songs/:id' => 'songs#update'
 end
 ```
-## One to Many (Artists have Many Albums)
+## [One to Many (Artists have Many Albums)](https://github.com/CodeCoreYVR/may_2015_ruby/commit/d9c4c35a7b4d5c5c651c3fcab1ebbf32abe9cb3d)
 Let's create a couple of [one to many](http://guides.rubyonrails.org/association_basics.html) relations. When we look at our Song model, there are some obvious one to many relations that can be made. The ones that may make the most sense at first (or at least for today) are that artists may have many albums (albums belong to artists), and albums have many songs (songs belong to albums). Let's start with the former!  
   
 To make a one to many relation between artists and albums, we are going to need artist and album models. So, let's create them.  
@@ -385,7 +385,7 @@ album = a.albums.new
 When we instantiate an album this way, it pre-populates the artist id
 attributes with the artist's id.
 
-## One to Many (Albums have Many Songs)
+## [One to Many (Albums have Many Songs)](https://github.com/CodeCoreYVR/may_2015_ruby/commit/6243d65dc2368866253139bd7fe5a2f715581af0)
 We already have a song model, and it has an album attribute. This is currently a string. Today, we're going to drop this column, then add a new column. **Bonus**: Read the rails documentation to find a way to do this in one step.
 ```shell
 rails generate migration drop_column_album_from_songs
@@ -419,7 +419,7 @@ end
 Run a `bin/rake db:migrate` and let's open up the console to see if it worked!  
   
 We will have a look at how to make new songs next time. Keep in mind that our app no longer works on the front end! See if you can _fix_ it.
-## Continuing from last time
+## [Change Column Data Type](https://github.com/CodeCoreYVR/may_2015_ruby/commit/6243d65dc2368866253139bd7fe5a2f715581af0)
 Let's change the album field `release_date` to a string. To do this, let's first generate a migration that removes the column.
 ```
 rails generate migration remove_column_release_date_from_album release_date:datetime
@@ -442,7 +442,8 @@ class RemoveColumnReleaseYearFromAlbum < ActiveRecord::Migration
 end
 ```
 **Bonus**: See if you can find a _better_ way to accomplish the same thing.  
-  
+
+## [add artist references to songs](https://github.com/CodeCoreYVR/may_2015_ruby/commit/1a48ce74debddc6e8097b08dd6b6126b5326a593)
 Now, let's make sure our songs have `album_id` and `artist_id` fields that reference albums and artists. Since we're going to do this, we no longer need the artist column, so let's remove it.
 ```
 bin/rails generate migration remove_column_artist_from_songs artist:string
@@ -462,7 +463,7 @@ After generating these migrations, run `bin/rake db:migrate` and check them out 
 @song.save
 ```
 Try firing up your `bin/rails server` and you should see a nice big error on your home page!
-## Fix the Index View
+## [Fix the Index View](https://github.com/CodeCoreYVR/may_2015_ruby/commit/ab9fc74c2f6a3ff5cad7369e668c7a5e99698b0a)
 The song index view is broken, because we no longer have a column "artist", also our album field is showing an object, rather than a string or a link. Let's fix this up first by just getting our index to show the string names of albums and artists.
 ```erb
 <% # app/views/songs/index.html.erb %>
@@ -481,7 +482,7 @@ The song index view is broken, because we no longer have a column "artist", also
 
 <% ... %>
 ```
-## Artist Routes, Views, and Controller
+## [Artist Routes, Views, and Controller](https://github.com/CodeCoreYVR/may_2015_ruby/commits/master)
 Let's start by making a route that will lead to a view with a form for creating a new artist.
 ```ruby
 # config/routes.rb
@@ -580,7 +581,7 @@ Now, let's add a link to our songs index page back to the artist view.
     </tr>
   <% end %>
 ```
-## Album Routes, Views, and Controller
+## [Album Routes, Views, and Controller](https://github.com/CodeCoreYVR/may_2015_ruby/commit/20dbcb505e396e6e854609da25428e2e57d5a026)
 let's create some route resources for albums
 ```ruby
 # config/routes.rb
