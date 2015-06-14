@@ -10,4 +10,6 @@ Rails.application.routes.draw do
   resources :artists, only: [:new, :create, :show] do
     resources :albums, only: [:create]
   end
+
+  resources :albums, only: [:index, :show]
 end

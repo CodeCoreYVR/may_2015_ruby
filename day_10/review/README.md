@@ -635,3 +635,50 @@ class AlbumsController < ApplicationController
   end
 end
 ```
+## [Add Albums Show View Controller Action, and Route](https://github.com/CodeCoreYVR/may_2015_ruby/commit/40851b42bc418289dc25258672962121006dfe3c)
+When we added albums, we did so under artists. We used the artist show page and added a form. Since we told the form that we were using a route to the albums controller `form_for [@artist, @album] do |f|` we could have written this `form_for @album, url: artist_albums_path(@album) do |f|` instead, and have gotten the same effect. For more information on the Rails `form_for` method check out the [docs](http://api.rubyonrails.org/classes/ActionView/Helpers/FormHelper.html#method-i-form_for).  
+  
+So, let's think about an album show view, and a form that allows us to add songs to that album. This is exactly the same as we have just done with adding albums to artists, so let's begin by adding a form for new songs to the album show view (ok, ok, let's start by adding an album show view *and a route*).  
+  
+This actually brings up an interesting design choice. Do we want a URL in the format of `/albums/album_id/songs/song_id/` or `/artists/artist_id/albums/album_id/songs/song_id`. We usually do not like to have our resources nested very deeply, however we may have reasons of SEO to consider, and may opt for one style over the other. **Note**: We will discuss generating more RESTful URLs later on over the course (e.g. replacing `album_id` with the title of the album, etc.). For now, we'll give albums their own (un-nested resource [route], and nest songs within that).  
+```ruby
+# config/routes.rb
+Rails.applications.routes.draw do
+  # ...
+
+  resources :albums, only [:index, :show]
+
+  # ...
+end
+```
+And let's add a show action to the albums controller. We can see in our routes (`http://localhost:3000/rails/info/routes`), that the show path takes an id. It follows that we can find the album based on its id.
+```ruby
+# app/controllers/albums_controller.rb
+
+class AlbumsController < ApplicationController
+  # ...
+
+  def show
+    @album = Album.find(params[:id])
+  end
+  # ...
+end
+```
+So, we have a method `album_path` which takes an album id and will route us to the show view for albums. Let's make a link on the artists show page to the albums show page.
+```erb
+<% # app/views/artists/show.html.erb %>
+
+  <% @artist.albums.each do |album| %>
+    <tr>
+      <td><%= album.name %></td>
+      <td><%= album.release_year %></td>
+      <td><%= link_to "show", album %></td>
+    </tr>
+  <% end %>
+```
+And now we need a view to show the album.
+```erb
+<% # app/views/albums/show.html.erb %>
+
+<h1><%= @album.name %></h1>
+```

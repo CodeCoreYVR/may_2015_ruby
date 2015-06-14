@@ -11,4 +11,8 @@ class AlbumsController < ApplicationController
       flash[:alert] = "Album not Saved!"
     end
   end
+
+  def show
+    @album = Album.find(params[:id])
+  end
 end
