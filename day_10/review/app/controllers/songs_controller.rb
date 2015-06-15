@@ -9,7 +9,9 @@ class SongsController < ApplicationController
 
   def create
     @song = Song.new(params.require(:song).
-                     permit([:title, :artist, :album, :youtube_link]))
+                     permit([:title, :youtube_link]))
+    @song.album_id = params[:album_id]
+    @song.artist_id = @song.album.artist_id
     if @song.save
       flash[:notice] = "Saved your song!"
       redirect_to root_path
@@ -33,6 +35,18 @@ class SongsController < ApplicationController
     else
       flash[:alert] = "Unable to update song. Please try again."
       render :edit
+    end
+  end
+
+  def destroy
+    @song = Song.find(params[:id])
+    @album = @song.album
+    if @song.delete
+      redirect_to @album
+      flash[:notice] = "Song deleted!"
+    else
+      redirect_to @album
+      flash[:alert] = "Song not deleted!"
     end
   end
 end

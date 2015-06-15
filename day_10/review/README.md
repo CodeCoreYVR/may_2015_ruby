@@ -682,3 +682,121 @@ And now we need a view to show the album.
 
 <h1><%= @album.name %></h1>
 ```
+## [Add Songs Form on Album Show View](https://github.com/CodeCoreYVR/may_2015_ruby/commit/862d59a161a8f1e7f4743f83a83a1ed86a1bbfc3)
+Let's add that form to create songs. Remember that songs belong to albums and albums have many songs. This should remind us that we will set up an `album_songs_path`, and can either use it explicitly when we call the `form_for` method or imply it by passing the array `[@album, @song]`.  
+  
+```erb
+<% # app/views/albums/show.html.erb %>
+
+<h1><%= @album.name %></h1>
+
+<h2>Add Song</h2>
+<%= form_for [@album, @song] do |f| %>
+  <%= f.label :title %>
+  <%= f.text_field :title %><br>
+  <%= f.label :youtube_link, "video link" %>
+  <%= f.text_field :youtube_link %><br>
+  <%= f.submit %>
+<% end %>
+```
+We will need to instantiate `@song` in our albums controller (because the show action for this view is in the albums controller).
+```ruby
+# app/controllers/albums_controller.rb
+
+  # ...
+
+  def show
+    @album = Album.find(params[:id])
+    @songs = @album.songs
+    @song = Song.new
+  end
+
+  # ...
+
+```
+Let's add the nested resource for creating songs in our routes file
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+
+  # ...
+
+  resources :albums, only: [:index, :show] do
+    resources :songs, only: [:create, :delete]
+  end
+
+  # ...
+end
+```
+Now, when we submit the form, we will want the songs create action to set the album and artist ids, so let's modify the create action. We also probably want to modify the redirects so we only use the albums show view.
+```ruby
+# app/controllers/songs_controller.rb
+
+  # ...
+
+  def create
+    @song = Song.new(params.require(:song).
+                     permit([:title, :youtube_link]))
+    @song.album_id = params[:album_id]
+    @song.artist_id = @song.album.artist_id
+    if @song.save
+      flash[:notice] = "Saved your song!"
+      redirect_to album_path(@song.album_id)
+    else
+      flash[:alert] = "Something went wrong! Please refresh and try again."
+        redirect_to album_path(@song.album_id)
+      end
+    end
+  end
+
+  # ...
+
+```
+Let's add a link to the album on the songs index view
+```erb
+<% # app/views/songs/index.html.erb %>
+
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= link_to song.album.name, album_path(song.album.id) %></td>
+      <td><%= link_to song.album.artist.name, song.album.artist %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "edit", song_path(song.id) %></td>
+    </tr>
+  <% end %>
+```
+And finally, let's add a list of all the songs on the albums show view, and a link to delete songs. This time, rather than using a rails helper method, let's just use the path in the delete link. This will hopefully make it clear where the album id and song id are being passed from.
+```erb
+<% # app/views/albums/show.html.erb %>
+
+<h1><%= @album.name %></h1>
+
+<h2>Add Song</h2>
+<%= form_for [@album, @song] do |f| %>
+  <%= f.label :title %>
+  <%= f.text_field :title %><br>
+  <%= f.label :youtube_link, "video link" %>
+  <%= f.text_field :youtube_link %><br>
+  <%= f.submit %>
+<% end %>
+
+<hr>
+<h2>Songs<h2>
+
+<table>
+  <tr>
+    <th>title</th>
+    <th>watch</th>
+    <th>edit</th>
+  </tr>
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "delete", "/albums/#{song.album_id}/songs/#{song.id}", method: :delete %></td>
+    <tr>
+  <% end %>
+</table>
+```

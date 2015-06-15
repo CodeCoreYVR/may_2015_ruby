@@ -11,5 +11,8 @@ Rails.application.routes.draw do
     resources :albums, only: [:create]
   end
 
-  resources :albums, only: [:index, :show]
+  resources :albums, only: [:index, :show] do
+    resources :songs, only: [:create, :destroy]
+  end
+
 end

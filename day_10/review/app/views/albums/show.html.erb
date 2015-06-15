@@ -1,1 +1,28 @@
 <h1><%= @album.name %></h1>
+
+<h2>Add Song</h2>
+<%= form_for [@album, @song] do |f| %>
+  <%= f.label :title %>
+  <%= f.text_field :title %><br>
+  <%= f.label :youtube_link, "video link" %>
+  <%= f.text_field :youtube_link %><br>
+  <%= f.submit %>
+<% end %>
+
+<hr>
+<h2>Songs<h2>
+
+<table>
+  <tr>
+    <th>title</th>
+    <th>watch</th>
+    <th>edit</th>
+  </tr>
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "delete", "/albums/#{song.album_id}/songs/#{song.id}", method: :delete %></td>
+    </tr>
+  <% end %>
+</table>
