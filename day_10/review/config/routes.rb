@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   get "/songs/:id" => "songs#edit", as: :song
   patch "/songs/:id" => "songs#update"
 
-  resources :artists, only: [:new, :create, :show] do
+  resources :artists, only: [:new, :create, :show, :index] do
     resources :albums, only: [:create]
   end
 

@@ -800,3 +800,66 @@ And finally, let's add a list of all the songs on the albums show view, and a li
   <% end %>
 </table>
 ```
+## [Add Artists Index View (and remove add song link)](https://github.com/CodeCoreYVR/may_2015_ruby/commit/dbea117d6ada9bd32e5a71f4916d7cad169ac0e9)
+Let's add a view to display all the artists. We can add artists, view artist pages where we can add albums, or view albums to add songs. This might not be the best design, but it works for us for now.
+```erb
+<% # app/views/artists/index.html.erb %>
+
+<h1>All Artists</h1>
+
+<table>
+  <tr>
+    <th>name</th>
+    <th>albums</th>
+  </tr>
+  <% @artists.each do |artist| %>
+    <tr>
+      <td><%= artist.name %></td>
+      <td><%= link_to "albums", artist_path(artist) %></td>
+    </tr>
+  <% end %>
+</table>
+```
+Let's also add a route for for artists
+```ruby
+# config/routes.rb
+
+  # ...
+
+  resources :artists, only: [:new, :create, :show, :index] do
+    resources :albums, only: [:create]
+  end
+
+  # ...
+```
+And of course an index action in the artists controller
+```ruby
+# app/controllers/artists_controller.rb
+
+class ArtistsController < ApplicationController
+  def index
+    @artists = Artist.all
+  end
+end
+```
+And, let's remove the "add song" link from our application layout
+```erb
+<% # app/views/layouts/application.html.erb %>
+
+  <%= link_to "home", root_path %> |
+  <%= link_to "add artist", new_artist_path %>
+```
+Let's also go ahead and remove the broken edit link on the songs index
+page
+```erb
+<% # app/views/songs/index.html.erb %>
+
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= link_to song.album.name, album_path(song.album.id) %></td>
+      <td><%= link_to song.album.artist.name, song.album.artist %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+    </tr>
+  <% end %>
+```

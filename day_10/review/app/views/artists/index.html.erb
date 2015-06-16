@@ -1,0 +1,14 @@
+<h1>All Artists</h1>
+
+<table>
+  <tr>
+    <th>name</th>
+    <th>albums</th>
+  </tr>
+  <% @artists.each do |artist| %>
+    <tr>
+      <td><%= artist.name %></td>
+      <td><%= link_to "albums", artist_path(artist) %></td>
+    </tr>
+  <% end %>
+</table>
