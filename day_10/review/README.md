@@ -863,3 +863,19 @@ page
     </tr>
   <% end %>
 ```
+## [Dependent Destroy](https://github.com/CodeCoreYVR/may_2015_ruby/commit/e44ca63e33bf6be1f45172e50b3075b38a4e1a33)
+Now, we will notice that if we remove artists, or albums, we will have orphaned albums or songs. In order to avoid this, we'll add [dependent: :destroy](http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html#module-ActiveRecord::Associations::ClassMethods-label-Deleting+from+associations) to our `has_many` associations.
+```ruby
+# app/models/album.rb
+
+class Artist < ActiveRecord::Base
+  has_many :albums, dependent: :destroy
+end
+```
+```ruby
+# app/models
+class Album < ActiveRecord::Base
+  belongs_to :artist
+  has_many :songs, dependent: :destroy
+end
+```
