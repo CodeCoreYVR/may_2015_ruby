@@ -879,3 +879,17 @@ class Album < ActiveRecord::Base
   has_many :songs, dependent: :destroy
 end
 ```
+## Bug Fix
+You may notice that our artists show view has an additional album displaying. This is because we have a form for creating a new album that has `@album` instantiated as `@artist.albums.new`. That means, when we iterate through `@artist.albums` we also have this empty (new) album.  
+  
+We can deal with this in a couple of ways. For example, we could instantiate a collection of artist albums `@albums = @artist.albums.all` and then instantiate the new album, or we could instantiate the new album as `@album = Album.new`. This time, let's try the latter.
+```ruby
+# app/controllers/artists_controller.rb
+
+# ...
+  def show
+    @artist = Artist.find(params[:id])
+    @album = Album.new
+  end
+# ...
+```
