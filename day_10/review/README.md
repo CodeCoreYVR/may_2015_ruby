@@ -879,7 +879,7 @@ class Album < ActiveRecord::Base
   has_many :songs, dependent: :destroy
 end
 ```
-## Bug Fix
+## [Bug Fix](https://github.com/CodeCoreYVR/may_2015_ruby/commit/d72ee959a054e92f7dc66ecd2cbc20602e79f846)
 You may notice that our artists show view has an additional album displaying. This is because we have a form for creating a new album that has `@album` instantiated as `@artist.albums.new`. That means, when we iterate through `@artist.albums` we also have this empty (new) album.  
   
 We can deal with this in a couple of ways. For example, we could instantiate a collection of artist albums `@albums = @artist.albums.all` and then instantiate the new album, or we could instantiate the new album as `@album = Album.new`. This time, let's try the latter.
@@ -893,7 +893,7 @@ We can deal with this in a couple of ways. For example, we could instantiate a c
   end
 # ...
 ```
-## Add Seed Data
+## [Add Seed Data](https://github.com/CodeCoreYVR/may_2015_ruby/commit/91859b5be272c913fe42a249016385253c4c290a)0
 Let's add some seed data to our database. We'll add some artists and albums, then just add songs in manually.
 ```ruby
 # db/seed.rb
@@ -913,3 +913,16 @@ groups.each do |name, albums|
 end
 ```
 In the terminal run `bin/rake db:seed` to populate your database with seed data.
+## [Add a Nav Link to All Artists](https://github.com/CodeCoreYVR/may_2015_ruby/commit/5c9add150ed2d27f0fffe7330577319f49a43748)
+Simply open up the application layout and add a link
+```erb
+<% # app/views/layouts/application.html.erb %>
+
+<% # ... %>
+
+  <%= link_to "home", root_path %> |
+  <%= link_to "all artists", artists_path %> |
+  <%= link_to "add artist", new_artist_path %>
+
+<% # ... %>
+```
