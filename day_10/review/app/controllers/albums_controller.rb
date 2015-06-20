@@ -1,4 +1,5 @@
 class AlbumsController < ApplicationController
+  before_action :authenticate_user!, except: [:show]
   def create
     @artist = Artist.find(params[:artist_id])
     @album = @artist.albums.new(params.require(:album).permit([:name, :release_year]))

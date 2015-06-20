@@ -9,7 +9,14 @@
 <body>
   <%= link_to "home", root_path %> |
   <%= link_to "all artists", artists_path %> |
-  <%= link_to "add artist", new_artist_path %>
+  <%= link_to "add artist", new_artist_path %> |
+  <% if user_signed_in? %>
+  <%= link_to "logout #{current_user.email}", sessions_path, method: :delete,
+                 data: {confirm: "log out?"} %>
+  <% else %>
+  <%= link_to "login", new_session_path %> |
+  <%= link_to "sign up", new_user_path %> 
+  <% end %>
   <%= yield %>
 
 </body>

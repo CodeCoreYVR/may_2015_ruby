@@ -15,4 +15,9 @@ Rails.application.routes.draw do
     resources :songs, only: [:create, :destroy]
   end
 
+  resources :users, only: [:new, :create]
+  resources :sessions, only: [:new, :create] do
+    delete :destroy, on: :collection
+  end
+
 end
