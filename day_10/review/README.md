@@ -893,7 +893,7 @@ We can deal with this in a couple of ways. For example, we could instantiate a c
   end
 # ...
 ```
-## [Add Seed Data](https://github.com/CodeCoreYVR/may_2015_ruby/commit/91859b5be272c913fe42a249016385253c4c290a)0
+## [Add Seed Data](https://github.com/CodeCoreYVR/may_2015_ruby/commit/91859b5be272c913fe42a249016385253c4c290a)
 Let's add some seed data to our database. We'll add some artists and albums, then just add songs in manually.
 ```ruby
 # db/seed.rb
@@ -925,4 +925,44 @@ Simply open up the application layout and add a link
   <%= link_to "add artist", new_artist_path %>
 
 <% # ... %>
+```
+## Add Users and User Auth
+Let's add users to our app, and a way for them to sign in. We can start by generating a user model. We can decide what attributes we want our users to have now, or we can add them later. We can always change our mind, so we don't have to feel that anything is set in stone. Let's add users with first names, last names, and email addresses, and passwords.  
+  
+We are going to user [`has_secure_password`](http://api.rubyonrails.org/classes/ActiveModel/SecurePassword/ClassMethods.html#method-i-has_secure_password), which adds methods and authenticates against a BCrypt password. This *requires* us to have a `password_digest` attribute.
+  
+Generate a user model
+```shell
+bin/rails generate model user first_name:string last_name:string email:string password_digest:string
+```
+Before migrating, we can optionally add an index to our the email field. While we're at it, we can also add a requirement for user emails to be unique. Why not, right?
+```ruby
+# db/migrate/20150620191026_create_users.rb
+
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.string :first_name
+      t.string :last_name
+      t.string :email
+      t.string :password_digest
+
+      t.timestamps null: false
+    end
+
+    add_index :users, :email, unique: true
+  end
+end
+```
+Go ahead and `bin/rake db:migrate` then open up the user model where we can add validation for the user email. If you Google [rails email validation regex](https://www.google.ca/search?q=rails+email+validation+regex&oq=rails+email+validation+regex&aqs=chrome..69i57.4255j0j4&sourceid=chrome&es_sm=119&ie=UTF-8), you'll find many alternatives. Choose one that works for you.  
+  
+If you are completely unfamiliar with regex, you will no doubt find this [incredibly brief guide](http://archive.oreilly.com/pub/a/ruby/excerpts/ruby-learning-rails/ruby-guide-regular-expressions.html) helpful.
+```ruby
+# app/models/user.rb
+
+class User < ActiveRecord::Base
+  has_secure_password
+  validates :email, presence: true, uniqueness: true,
+            format:  /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+end
 ```
