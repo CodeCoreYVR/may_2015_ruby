@@ -1239,3 +1239,243 @@ And, finally let's add some links to our navigation to display differently with 
 </body>
 </html>
 ```
+## Many to Many: Add Likes (Users Like Songs)
+With a many to many relationship, we'll be using a join-table. Our join table simply contains id references for two models. In this case, we are going to have users and songs be _joined_ with likes.  
+  
+Our like entries will have `user_id` and `song_id` fields, and will look something like this
+id | user_id | song_id | created_at | updated_at
+-- | ------- | ------- | ---------- | ----------
+1  | 4       | 2       | 2015-06-20 23:27:55 UTC | 2015-06-20 23:27:55 UTC
+  
+
+Let's start with the like model
+```shell
+bin/rails generate model like user:references song:references
+```
+This creates a migration for us
+```ruby
+# db/migrate/20150621032912_create_likes.rb
+class CreateLikes < ActiveRecord::Migration
+  def change
+    create_table :likes do |t|
+      t.references :user, index: true, foreign_key: true
+      t.references :song, index: true, foreign_key: true
+
+      t.timestamps null: false
+    end
+  end
+end
+```
+Let's add some associations to our like, user, and song models
+```ruby
+# app/models/like.rb
+class Like < ActiveRecord::Base
+  belongs_to :user
+  belongs_to :song
+end
+```
+```ruby
+# app/models/user.rb
+
+class User < ActiveRecord::Base
+  has_secure_password
+  validates :email, presence: true, uniqueness: true,
+            format:  /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+  has_many :likes, dependent: :destroy
+  has_many :songs, through: :likes
+end
+```
+```ruby
+# app/models/song.rb
+
+class Song < ActiveRecord::Base
+  belongs_to :album
+  scope :recent_five, -> { order("updated_at DESC").limit(5) }
+  has_many :likes, dependent: :destroy
+  has_many :users, through: :likes
+end
+```
+Add a routes for song likes for create and destroy actions
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  root "songs#index"
+
+  get "/songs" => "songs#new"
+  post "/songs" => "songs#create"
+
+  get "/songs/:id" => "songs#edit", as: :song
+  patch "/songs/:id" => "songs#update"
+
+  resources :artists, only: [:new, :create, :show, :index] do
+    resources :albums, only: [:create]
+  end
+
+  resources :albums, only: [:index, :show] do
+    resources :songs, only: [:create, :destroy]
+  end
+
+  resources :users, only: [:new, :create]
+  resources :sessions, only: [:new, :create] do
+    delete :destroy, on: :collection
+  end
+
+  resources :songs do
+    resources :likes, only: [:create, :destroy]
+  end
+
+end
+```
+Add a likes controller with create and destroy actions
+```ruby
+app/controllers/likes_controller.rb
+
+class LikesController < ApplicationController
+  before_action :authenticate_user!
+
+  def create
+    like = current_user.likes.new
+    song = Song.find(params[:song_id])
+    like.song = song
+    if like.save
+      redirect_to song, notice: "liked"
+    else
+      redirect_to song, alert: "not liked"
+    end
+  end
+
+  def destroy
+    like = current_user.likes.find(params[:id])
+    like.destroy
+    redirect_to song, notice: "unliked"
+  end
+end
+```
+
+Instantiate a like in the albums controller show action
+```ruby
+# app/controllers/albums_controller.rb
+
+class AlbumsController < ApplicationController
+  before_action :authenticate_user!, except: [:show]
+  def create
+    @artist = Artist.find(params[:artist_id])
+    @album = @artist.albums.new(params.require(:album).permit([:name, :release_year]))
+
+    if @album.save
+      redirect_to @artist
+      flash[:notice] = "Album Saved!"
+    else
+      redirect_to @artist
+      flash[:alert] = "Album not Saved!"
+    end
+  end
+
+  def show
+    @album = Album.find(params[:id])
+    @songs = @album.songs
+    @song = Song.new
+    @like = @song.likes.new
+
+  end
+end
+```
+Also instantiate a like in the songs controller index action
+```ruby
+# app/controllers/songs_controller.rb
+
+  # ...
+
+  def index
+    @songs = Song.recent_five
+    @like = Like.new
+  end
+
+  # ...
+```
+For each of the songs we display on the index view, we want to see if there is a like for the current user. Let's add a method to the song model to check for likes that have a `user_id` matching the current user.
+```ruby
+# app/models/song.rb
+
+  # ...
+
+    def like_for(user)
+      self.likes.find_by_user_id(user)
+    end
+
+  # ...
+
+```
+This method takes a user, and returns a like if one exists with that user's id. Note that _self_ refers to the song we pass in, so we can call `@song.like_for(current_user)` and it will return the like if it exists.  
+  
+When we iterate through the songs on the songs index page, we can see if there are any likes. If not, we'll have a link to like a song, otherwise, we'll have a link to delete the like.
+```erb
+<% # app/views/songs/index.html.erb %>
+
+ <% # ... %>
+
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= link_to song.album.name, album_path(song.album.id) %></td>
+      <td><%= link_to song.album.artist.name, song.album.artist %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <% if song.like_for(current_user) %>
+        <td><%= link_to "unlike", song_like_path(song, song.like_for(current_user)), method: :delete %></td>
+      <% else %>
+        <td><%= link_to "like", song_likes_path(song), method: :post %></td>
+      <% end %>
+    </tr>
+  <% end %>
+
+  <% # ... %>
+
+```
+We now have the ability to like on the root page. Remember this is our songs index, and is being fed the most recent five songs by the index controller. But what about when we view album show pages. There are also lists of songs. Let's add likes to the album show pages.
+```erb
+<% # app/views/albums/show.html.erb %>
+
+  <% # ... %>
+
+  <% @songs.each do |song| %>
+    <tr>
+      <td><%= song.title %></td>
+      <td><%= link_to "watch", song.youtube_link %></td>
+      <td><%= link_to "delete", "/albums/#{song.album_id}/songs/#{song.id}", method: :delete %></td>
+      <% if song.like_for(current_user) %>
+        <td><%= link_to "unlike", song_like_path(song, song.like_for(current_user)), method: :delete %></td>
+      <% else %>
+        <td><%= link_to "like", song_likes_path(song), method: :post %></td>
+      <% end %>
+    </tr>
+  <% end %>
+
+  <% # ... %>
+
+```
+This allows us to add likes, but our likes create action is redirecting us back to the root path. If we want to redirect back to where we are, i.e. redirect back to the index view _if we were on the index view_ and redirect back to the albums show view, _if we were on the albums show view_ when we clicked like or unlike, we can use `redirect_to :back`. Let's change this in our likes create action (and also in our delete action).
+```ruby
+# app/controllers/likes_controller.rb
+
+class LikesController < ApplicationController
+  before_action :authenticate_user!
+
+  def create
+    like = current_user.likes.new
+    song = Song.find(params[:song_id])
+    like.song = song
+    if like.save
+      redirect_to :back, notice: "liked"
+    else
+      redirect_to :back, alert: "not liked"
+    end
+  end
+
+  def destroy
+    like = current_user.likes.find(params[:id])
+    like.destroy
+    redirect_to :back, notice: "unliked"
+  end
+end
+```

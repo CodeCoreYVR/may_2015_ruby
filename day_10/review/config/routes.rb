@@ -20,4 +20,8 @@ Rails.application.routes.draw do
     delete :destroy, on: :collection
   end
 
+  resources :songs do
+    resources :likes, only: [:create, :destroy]
+  end
+
 end
