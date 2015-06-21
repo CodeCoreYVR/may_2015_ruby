@@ -879,7 +879,7 @@ class Album < ActiveRecord::Base
   has_many :songs, dependent: :destroy
 end
 ```
-## Bug Fix
+## [Bug Fix](https://github.com/CodeCoreYVR/may_2015_ruby/commit/d72ee959a054e92f7dc66ecd2cbc20602e79f846)
 You may notice that our artists show view has an additional album displaying. This is because we have a form for creating a new album that has `@album` instantiated as `@artist.albums.new`. That means, when we iterate through `@artist.albums` we also have this empty (new) album.  
   
 We can deal with this in a couple of ways. For example, we could instantiate a collection of artist albums `@albums = @artist.albums.all` and then instantiate the new album, or we could instantiate the new album as `@album = Album.new`. This time, let's try the latter.
@@ -893,7 +893,7 @@ We can deal with this in a couple of ways. For example, we could instantiate a c
   end
 # ...
 ```
-## Add Seed Data
+## [Add Seed Data](https://github.com/CodeCoreYVR/may_2015_ruby/commit/91859b5be272c913fe42a249016385253c4c290a)
 Let's add some seed data to our database. We'll add some artists and albums, then just add songs in manually.
 ```ruby
 # db/seed.rb
@@ -913,3 +913,329 @@ groups.each do |name, albums|
 end
 ```
 In the terminal run `bin/rake db:seed` to populate your database with seed data.
+## [Add a Nav Link to All Artists](https://github.com/CodeCoreYVR/may_2015_ruby/commit/5c9add150ed2d27f0fffe7330577319f49a43748)
+Simply open up the application layout and add a link
+```erb
+<% # app/views/layouts/application.html.erb %>
+
+<% # ... %>
+
+  <%= link_to "home", root_path %> |
+  <%= link_to "all artists", artists_path %> |
+  <%= link_to "add artist", new_artist_path %>
+
+<% # ... %>
+```
+## Add Users and User Auth
+Let's add users to our app, and a way for them to sign in. We can start by generating a user model. We can decide what attributes we want our users to have now, or we can add them later. We can always change our mind, so we don't have to feel that anything is set in stone. Let's add users with first names, last names, and email addresses, and passwords.  
+  
+We are going to user [`has_secure_password`](http://api.rubyonrails.org/classes/ActiveModel/SecurePassword/ClassMethods.html#method-i-has_secure_password), which adds methods and authenticates against a BCrypt password. This *requires* us to have a `password_digest` attribute.
+  
+Generate a user model
+```shell
+bin/rails generate model user first_name:string last_name:string email:string password_digest:string
+```
+Before migrating, we can optionally add an index to our the email field. While we're at it, we can also add a requirement for user emails to be unique. Why not, right?
+```ruby
+# db/migrate/20150620191026_create_users.rb
+
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.string :first_name
+      t.string :last_name
+      t.string :email
+      t.string :password_digest
+
+      t.timestamps null: false
+    end
+
+    add_index :users, :email, unique: true
+  end
+end
+```
+Go ahead and `bin/rake db:migrate` then open up the user model where we can add validation for the user email. If you Google [rails email validation regex](https://www.google.ca/search?q=rails+email+validation+regex&oq=rails+email+validation+regex&aqs=chrome..69i57.4255j0j4&sourceid=chrome&es_sm=119&ie=UTF-8), you'll find many alternatives. Choose one that works for you.  
+  
+If you are completely unfamiliar with regex, you will no doubt find this [incredibly brief guide](http://archive.oreilly.com/pub/a/ruby/excerpts/ruby-learning-rails/ruby-guide-regular-expressions.html) helpful.
+```ruby
+# app/models/user.rb
+
+class User < ActiveRecord::Base
+  has_secure_password
+  validates :email, presence: true, uniqueness: true,
+            format:  /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+end
+```
+Add some routes for new and create actions
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  root "songs#index"
+
+  get "/songs" => "songs#new"
+  post "/songs" => "songs#create"
+
+  get "/songs/:id" => "songs#edit", as: :song
+  patch "/songs/:id" => "songs#update"
+
+  resources :artists, only: [:new, :create, :show, :index] do
+    resources :albums, only: [:create]
+  end
+
+  resources :albums, only: [:index, :show] do
+    resources :songs, only: [:create, :destroy]
+  end
+
+  resources :users, only: [:new, :create]
+
+end
+```
+Now that we have our route, let's add a users controller with the new and create actions. *Note* that we are adding `session[:user_id] = @user.id` after creation to authenticate the user to our website on create.
+```ruby
+# app/controllers/users_controller.rb
+
+class UsersController < ApplicationController
+
+  def new
+    @user = User.new
+  end
+
+  def create
+    @user = User.new(params.require(:user).
+              permit([:first_name, :last_name, :email, :password,
+                      :password_confirmation])
+    if @user.save
+      session[:user_id] = @user.id
+      redirect_to root_path, notice: "Logged in!"
+    else
+      render :new
+    end
+  end
+end
+```
+Add a view to display a form to create new users
+```erb
+<% # app/views/users/new.html.erb %>
+
+<h1>Sign Up</h1>
+
+<% if @user.errors.any? %>
+  <ul>
+    <% @user.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_for @user do |f| %>
+  <div>
+    <%= f.label :first_name %>
+    <%= f.text_field :first_name %>
+  </div>
+  <div>
+    <%= f.label :last_name %>
+    <%= f.text_field :last_name %>
+  </div>
+  <div>
+    <%= f.label :email %>
+    <%= f.email_field :email %>
+  </div>
+  <div>
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+  </div>
+  <div>
+    <%= f.label :password_confirmation %>
+    <%= f.password_field :password_confirmation %>
+  </div>
+  <%= f.submit %>
+<% end %>
+```
+## Add Sessions Controller
+We are going to use the `@user.athenticate` method, which came with the `has_secure_password` method. This method hashes the user's password and compares it to the password digest. If the hash is the same, then the password entered must have been the same, and the method returns `true`. Otherwise, it will return `false`. *Aside*: [hashing, encryption, encoding](https://danielmiessler.com/study/encoding_encryption_hashing/) are interesting topics worth spending some time to read up on.  
+  
+If the user is authenticated, then we can create a session.
+```ruby
+class SessionsController < ApplicationController
+  def new
+  end
+
+  def create
+    @user = User.find_by_email params[:email]
+    if @user && @user.authenticate(params[:password])
+      session[:user_id] = @user.id
+      redirect_to root_path, notice: "Logged in"
+    else
+      flash[:alert] = "Unknown email or password"
+      render :new
+    end
+  end
+
+  def destroy
+    session[:user_id] = nil
+    redirect_to root_path, notice: "Logged out"
+  end
+end
+```
+Since there isn't a session model, we will use a `form_tag` for the session, not `form_for` for the sessions new view
+```erb
+<% # app/views/sessions/new.html.erb %>
+
+<h1>Sign In</h1>
+
+<%= form_tag sessions_path do %>
+  <div>
+    <%= label_tag :email %>
+    <%= email_field_tag :email %>
+  </div>
+  <div>
+    <%= label_tag :password %>
+    <%= password_field_tag :password %>
+  </div>
+  <div>
+    <%= submit_tag "Log In" %>
+  </div>
+<% end %>
+```
+And of course, make sure to add resources for sessions new, create, and destroy on collection
+```ruby
+
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  root "songs#index"
+
+  get "/songs" => "songs#new"
+  post "/songs" => "songs#create"
+
+  get "/songs/:id" => "songs#edit", as: :song
+  patch "/songs/:id" => "songs#update"
+
+  resources :artists, only: [:new, :create, :show, :index] do
+    resources :albums, only: [:create]
+  end
+
+  resources :albums, only: [:index, :show] do
+    resources :songs, only: [:create, :destroy]
+  end
+
+  resources :users, only: [:new, :create]
+  resources :sessions, only: [:new, :create] do
+    delete :destroy, on: :collection
+  end
+
+end
+```
+We have the line `delete :destroy, on: :collection` this makes the route without id or user id in it.  
+  
+Let's also add some useful methods for our users in our application controller. Since we will want to check for a current user on several of the views, let's add a `current_user` method, a `user_signed_in?` method, and a `current_user` method. Since we want the latter two to be available to the views, we will declare them [`helper_method`](http://apidock.com/rails/ActionController/Helpers/ClassMethods/helper_method)s.
+```erb
+# app/controllers/application_controller.rb
+
+class ApplicationController < ActionController::Base
+  # Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  protect_from_forgery with: :exception
+
+  def authenticate_user!
+    redirect_to new_session_path, notice: "Please login" unless user_signed_in?
+  end
+
+  def user_signed_in?
+    current_user.present?
+  end
+  helper_method :user_signed_in?
+
+  def current_user
+    @current_user ||= User.find_by_id session[:user_id]
+  end
+  helper_method :current_user
+end
+```
+Let's use the `authenticate_user!` method in our artists and albums controllers so we only allow registered users to add albums.
+```ruby
+# app/controllers/artists_controller.rb
+
+class ArtistsController < ApplicationController
+  before_action :authenticate_user!, except: [:index, :show]
+  def index
+    @artists = Artist.all
+  end
+
+  def new
+    @artist = Artist.new
+  end
+
+  def create
+    @artist = Artist.new(params.require(:artist).permit([:name]))
+
+    if @artist.save
+      flash[:notice] = "Artist saved!"
+      redirect_to artist_path(@artist.id)
+    else
+      render :new
+      flash[:alert] = "Artist not saved!"
+    end
+  end
+
+  def show
+    @artist = Artist.find(params[:id])
+    @album = Album.new
+  end
+end
+```
+```ruby
+# app/controllers/albums_controller.rb
+
+class AlbumsController < ApplicationController
+  before_action :authenticate_user!, except: [:show]
+  def create
+    @artist = Artist.find(params[:artist_id])
+    @album = @artist.albums.new(params.require(:album).permit([:name, :release_year]))
+
+    if @album.save
+      redirect_to @artist
+      flash[:notice] = "Album Saved!"
+    else
+      redirect_to @artist
+      flash[:alert] = "Album not Saved!"
+    end
+  end
+
+  def show
+    @album = Album.find(params[:id])
+    @songs = @album.songs
+    @song = Song.new
+  end
+end
+```
+And, finally let's add some links to our navigation to display differently with signed in users and not.
+```erb
+<% # app/views/layouts/application.html.erb %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Review</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+  <%= link_to "home", root_path %> |
+  <%= link_to "all artists", artists_path %> |
+  <%= link_to "add artist", new_artist_path %> |
+  <% if user_signed_in? %>
+  <%= link_to "logout #{current_user.email}", sessions_path, method: :delete,
+                 data: {confirm: "log out?"} %>
+  <% else %>
+  <%= link_to "login", new_session_path %> |
+  <%= link_to "sign up", new_user_path %> 
+  <% end %>
+  <%= yield %>
+
+</body>
+</html>
+```
