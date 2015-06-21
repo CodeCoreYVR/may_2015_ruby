@@ -10,7 +10,7 @@
 <% end %>
 
 <hr>
-<h2>Songs<h2>
+<h2>Songs</h2>
 
 <table>
   <tr>
@@ -23,6 +23,11 @@
       <td><%= song.title %></td>
       <td><%= link_to "watch", song.youtube_link %></td>
       <td><%= link_to "delete", "/albums/#{song.album_id}/songs/#{song.id}", method: :delete %></td>
+      <% if song.like_for(current_user) %>
+        <td><%= link_to "unlike", song_like_path(song, song.like_for(current_user)), method: :delete %></td>
+      <% else %>
+        <td><%= link_to "like", song_likes_path(song), method: :post %></td>
+      <% end %>
     </tr>
   <% end %>
 </table>

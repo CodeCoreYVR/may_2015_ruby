@@ -6,6 +6,7 @@
     <th>album</th>
     <th>artist</th>
     <th>watch</th>
+    <th>like</td>
   </tr>
   <% @songs.each do |song| %>
     <tr>
@@ -13,6 +14,11 @@
       <td><%= link_to song.album.name, album_path(song.album.id) %></td>
       <td><%= link_to song.album.artist.name, song.album.artist %></td>
       <td><%= link_to "watch", song.youtube_link %></td>
+      <% if song.like_for(current_user) %>
+        <td><%= link_to "unlike", song_like_path(song, song.like_for(current_user)), method: :delete %></td>
+      <% else %>
+        <td><%= link_to "like", song_likes_path(song), method: :post %></td>
+      <% end %>
     </tr>
   <% end %>
 </table>

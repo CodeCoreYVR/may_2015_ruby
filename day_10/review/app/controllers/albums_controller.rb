@@ -17,5 +17,6 @@ class AlbumsController < ApplicationController
     @album = Album.find(params[:id])
     @songs = @album.songs
     @song = Song.new
+    @like = @song.likes.new
   end
 end

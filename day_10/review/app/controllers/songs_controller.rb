@@ -1,6 +1,7 @@
 class SongsController < ApplicationController
   def index
     @songs = Song.recent_five
+    @like = Like.new
   end
 
   def new
